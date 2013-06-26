@@ -1,13 +1,13 @@
 package org.apache.hadoop.contrib.ftp;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 
 /**
  * Class to store DFS connection
@@ -21,7 +21,7 @@ public class HdfsOverFtpSystem {
 	private static String superuser = "error";
 	private static String supergroup = "supergroup";
 
-	private final static Logger log = LoggerFactory.getLogger(HdfsOverFtpSystem.class);
+	private final static Logger log = Logger.getLogger(HdfsOverFtpSystem.class);
 
 
 	private static void hdfsInit() throws IOException {

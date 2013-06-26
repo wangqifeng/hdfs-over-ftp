@@ -1,25 +1,44 @@
 package org.apache.hadoop.contrib.ftp;
 
-import org.apache.ftpserver.FtpServerConfigurationException;
-import org.apache.ftpserver.ftplet.*;
-import org.apache.ftpserver.usermanager.*;
-import org.apache.ftpserver.util.BaseProperties;
-import org.apache.ftpserver.util.IoUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.ftpserver.FtpServerConfigurationException;
+import org.apache.ftpserver.ftplet.Authentication;
+import org.apache.ftpserver.ftplet.AuthenticationFailedException;
+import org.apache.ftpserver.ftplet.Authority;
+import org.apache.ftpserver.ftplet.FtpException;
+import org.apache.ftpserver.ftplet.User;
+import org.apache.ftpserver.usermanager.AnonymousAuthentication;
+import org.apache.ftpserver.usermanager.Md5PasswordEncryptor;
+import org.apache.ftpserver.usermanager.PasswordEncryptor;
+import org.apache.ftpserver.usermanager.UsernamePasswordAuthentication;
+import org.apache.ftpserver.usermanager.impl.AbstractUserManager;
+import org.apache.ftpserver.usermanager.impl.ConcurrentLoginPermission;
+import org.apache.ftpserver.usermanager.impl.ConcurrentLoginRequest;
+import org.apache.ftpserver.usermanager.impl.TransferRatePermission;
+import org.apache.ftpserver.usermanager.impl.TransferRateRequest;
+import org.apache.ftpserver.usermanager.impl.WritePermission;
+import org.apache.ftpserver.usermanager.impl.WriteRequest;
+import org.apache.ftpserver.util.BaseProperties;
+import org.apache.ftpserver.util.IoUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extended AbstractUserManager to use  HdfsUser
  */
 public class HdfsUserManager extends AbstractUserManager {
 
-	private final Logger LOG = LoggerFactory
+    private final Logger LOG = LoggerFactory
 			.getLogger(HdfsUserManager.class);
 
 	private final static String DEPRECATED_PREFIX = "FtpServer.user.";
@@ -32,9 +51,19 @@ public class HdfsUserManager extends AbstractUserManager {
 
 	private boolean isConfigured = false;
 
-	private PasswordEncryptor passwordEncryptor = new Md5PasswordEncryptor();
+	public static PasswordEncryptor passwordEncryptor = new Md5PasswordEncryptor();
 
+    /**
+     * @param adminName
+     * @param passwordEncryptor
+     */
+    public HdfsUserManager(String adminName, PasswordEncryptor passwordEncryptor)
+    {
+        super(adminName, passwordEncryptor);
 
+    }
+    
+	
 	/**
 	 * Retrieve the file used to load and store users
 	 *
@@ -354,7 +383,7 @@ public class HdfsUserManager extends AbstractUserManager {
 
 		authorities.add(new TransferRatePermission(downloadRate, uploadRate));
 
-		user.setAuthorities(authorities.toArray(new Authority[0]));
+		user.setAuthorities(authorities);
 
 		user.setMaxIdleTime(userDataProp.getInteger(baseKey
 				+ ATTR_MAX_IDLE_TIME, 0));
